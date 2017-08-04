@@ -66,7 +66,14 @@ sudo mkdir /mnt/boot/EFI/
 sudo mount -t vfat /dev/nvme0n1p1 /mnt/boot/EFI/
 sudo swapon /dev/vg0/swap
 
-# XKCD
+# get and install latest version of manjaro-architect
+git clone https://github.com/Chrysostomus/manjaro-architect
+cd manjaro-architect
+make
+makepkg -sric --noconfirm
+
+# run manjaro-architect
+#sudo manjaro-architect
 
 # unmount
 sudo umount /mnt/boot/EFI/
