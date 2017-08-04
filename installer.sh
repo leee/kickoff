@@ -5,48 +5,39 @@ echo "Please stick arround until you have provided user input for those items."
 echo ""
 
 # disk selection
-echo "XKCD you disabled disk selection for testing"
-disk="nvme0n1"
-#lsblk --nodeps
-# echo ""
-# read -p "Target Disk: " disk
-# echo
-# if [ ! -e /dev/"$disk" ]; then
-#     echo "Not a disk."
-#     exit 1
-# fi
+lsblk --nodeps
+echo ""
+read -p "Target Disk: " disk
+echo
+if [ ! -e /dev/"$disk" ]; then
+    echo "Not a disk."
+    exit 1
+fi
 
 # encrypted LUKS volume passphrase
-echo "XKCD you disabled passphrase for testing"
-pass="qwer"
-# read -p "LUKS Passphrase: " -s pass
-# echo
-# if [ -z "$pass" ]; then
-#     echo "Passphrase empty."
-#     exit 1
-# fi
-# read -p "LUKS Passphrase (confirmation): " -s pass_confirm
-# echo
-# if [ "$pass" != "$pass_confirm" ]; then
-#     echo "Passphrase mismatch."
-#     exit 1
-# fi
+read -p "LUKS Passphrase: " -s pass
+echo
+if [ -z "$pass" ]; then
+    echo "Passphrase empty."
+    exit 1
+fi
+read -p "LUKS Passphrase (confirmation): " -s pass_confirm
+echo
+if [ "$pass" != "$pass_confirm" ]; then
+    echo "Passphrase mismatch."
+    exit 1
+fi
 
 # mirror selection
-echo "XKCD you disabled mirror selection for testing"
-#sudo pacman-mirrors -m rank --geoip # --country United_States
-#sudo pacman -Sy
-#sudo pacman --noconfirm -S base-devel git libutil-linux emacs mtr htop
+sudo pacman-mirrors -m rank --geoip # --country United_States
+sudo pacman -Sy
+sudo pacman --noconfirm -S base-devel git libutil-linux emacs mtr htop
 
 # disk format
-#disk_magic_number_mebibyte=1048576
-#disk_max=$(sudo blockdev --getsize64 /dev/"$disk")
-#disk_max_mebibyte=$(expr "$disk_max" / "$disk_magic_number_mebibyte")
 sudo parted --script /dev/"$disk" mklabel gpt
-#sudo parted --script /dev/"$disk" unit MiB mkpart primary 2 514 mkpart primary 516 1540 mkpart primary 1542 "$disk_max_mebibyte" set 1 boot on set 1 esp on
 sudo parted --script /dev/"$disk" unit MiB mkpart primary 2 514 mkpart primary 516 1540 mkpart primary 1542 100% set 1 boot on set 1 esp on
 sudo mkfs.vfat /dev/"$disk"p1
-sudo mkfs.ext3 -m 0 /dev/"$disk"p2 -F # XKCD because this gets noisy doing tests on the SAME disk
+yes | sudo mkfs.ext3 -m 0 /dev/"$disk"p2 -F # XKCD because this gets noisy doing tests on the SAME disk
 
 # luks setup
 echo -n "$pass" | sudo cryptsetup luksFormat /dev/"$disk"p3 -v --cipher aes-xts-plain64 --hash sha512 --iter-time 5000 --use-random --key-file=-
@@ -73,16 +64,16 @@ make
 makepkg -sric --noconfirm
 
 # run manjaro-architect
-#sudo manjaro-architect
+sudo manjaro-architect
 
 # unmount
-sudo umount /mnt/boot/EFI/
-sudo umount /mnt/boot/
-sudo umount /mnt/
-sudo swapoff /dev/vg0/swap
+# sudo umount /mnt/boot/EFI/
+# sudo umount /mnt/boot/
+# sudo umount /mnt/
+# sudo swapoff /dev/vg0/swap
 
 # things to do to clean up testing
-sudo lvchange --activate n /dev/vg0/swap
-sudo lvchange --activate n /dev/vg0/root
-sudo vgchange --activate n vg0
-sudo cryptsetup close e1
+# sudo lvchange --activate n /dev/vg0/swap
+# sudo lvchange --activate n /dev/vg0/root
+# sudo vgchange --activate n vg0
+# sudo cryptsetup close e1
