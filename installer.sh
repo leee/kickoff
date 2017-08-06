@@ -1,8 +1,17 @@
 echo "I will need your input for the following:"
+echo "  - hostname"
+echo "  - root password"
+echo "  - user"
 echo "  - disk selection"
 echo "  - encrypted LUKS volume passphrase"
 echo "Please stick arround until you have provided user input for those items."
 echo ""
+
+# hostname
+
+# root password
+
+# user
 
 # disk selection
 lsblk --nodeps
@@ -77,3 +86,9 @@ sudo manjaro-architect
 # sudo lvchange --activate n /dev/vg0/root
 # sudo vgchange --activate n vg0
 # sudo cryptsetup close e1
+
+
+# Things to install after installation
+sudo pacman -Sy
+sudo pacman -S --noconfirm --needed base-devel
+sudo pacman -S --noconfirm --needed dnsutils emacs git htop libinput mosh mtr whois
