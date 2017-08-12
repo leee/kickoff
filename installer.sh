@@ -1,17 +1,53 @@
 echo "I will need your input for the following:"
 echo "  - hostname"
-echo "  - root password"
 echo "  - user"
+echo "  - root password"
 echo "  - disk selection"
 echo "  - encrypted LUKS volume passphrase"
 echo "Please stick arround until you have provided user input for those items."
 echo ""
 
 # hostname
-
-# root password
+# h/t cela
+hostname_generated="null-$(od -t x1 /dev/urandom -N 2 -A n | sed 's/ //g')"
+read -p "Hostname (leave empty to use $hostname_generated): " hostname
+if [ -z "$hostname" ]; then
+    hostname="$hostname_generated"
+fi
 
 # user
+read -p "Username: " user_name
+if [ -z "$user_name" ]; then
+    echo "Username empty."
+    exit 1
+fi
+
+read -p "Password: " -s user_pass
+echo
+if [ -z "$user_pass" ]; then
+    echo "Password empty."
+    exit 1
+fi
+read -p "Password (confirmation): " -s user_pass_confirm
+echo
+if [ "$user_pass" != "$user_pass_confirm" ]; then
+    echo "Password mismatch."
+    exit 1
+fi
+
+# root password
+read -p "Root user password (leave empty to use user password): " -s root_pass
+echo
+if [ -z "$root_pass" ]; then
+    root_pass="$user_pass"
+else
+    read -p "Root user password (confirmation): " -s root_pass_confirm
+    echo
+    if [ "$root_pass" != "$root_pass_confirm" ]; then
+        echo "Root password mismatch."
+        exit 1
+    fi
+fi
 
 # disk selection
 lsblk --nodeps
@@ -90,5 +126,5 @@ sudo manjaro-architect
 
 # Things to install after installation
 sudo pacman -Sy
-sudo pacman -S --noconfirm --needed base-devel
-sudo pacman -S --noconfirm --needed dnsutils emacs git htop libinput mosh mtr whois
+sudo pacman -S --noconfirm --needed base-devel # XKCD will this actually install properly?
+sudo pacman -S --noconfirm --needed aircrack-ng bluez dnsutils emacs git htop libinput libu2f-host mosh mtr wavemon whois wifi-radar
